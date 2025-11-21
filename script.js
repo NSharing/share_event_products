@@ -27,14 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const commentInputText = document.getElementById('comment-text');
   const commentSubmitButton = document.getElementById('submit-comment');
 
-  // 버튼이 제대로 찾아졌는지 확인
-  if (commentSubmitButton) {
-      console.log("✅ 댓글 작성 버튼을 찾았습니다!");
-  } else {
-      alert("❌ 오류: HTML에서 'submit-comment' 아이디를 가진 버튼을 찾을 수 없습니다.");
-      return; // 스크립트 중단
-  }
-
   // 전역 변수
   let allPosts = [];
   let allComments = [];
@@ -84,6 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return Number(price).toLocaleString() + '원';
   }
 
+  function scrollToBottom() {
+    const scrollArea = document.getElementById('detail-scroll-area');
+    if (scrollArea) {
+        scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  }
+
   // -------------------------------------------------------------
   // 기능 함수들
   // -------------------------------------------------------------
@@ -118,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rawMemo = post.memo || '';
         const previewText = rawMemo.substring(0, 40) + (rawMemo.length > 40 ? '...' : '');
         
-        // 문자열 비교로 댓글 개수 세기
         const commentCount = allComments.filter(c => String(c.post_id) === String(post.timestamp)).length;
 
         const postElement = document.createElement('article');
@@ -142,26 +140,67 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // [중요] 댓글 작성 버튼 클릭 이벤트 핸들러
-  async function handleCommentSubmit(e) {
-    e.preventDefault(); // 기본 동작 방지
-    console.log("🖱️ 작성 버튼 클릭됨!"); // 콘솔 로그 확인용
+  function openDetailView(postData) {
+    currentPostId = postData.timestamp; 
+    
+    let contentText = postData.memo || '';
+    let locationText = '장소 미정';
+    const locMatch = contentText.match(/^\[장소:\s*(.*?)\]\n?/);
+    if (locMatch) {
+        locationText = locMatch[1]; 
+        contentText = contentText.replace(locMatch[0], '');
+    }
 
-    const author = commentInputAuthor.value.trim() || '익명';
-    const content = commentInputText.value.trim();
+    detailTitle.textContent = postData.item_name;
+    detailItem.textContent = postData.item_type;
+    detailPrice.textContent = formatPrice(postData.price);
+    detailLocation.textContent = locationText;
+    detailContent.textContent = contentText;
 
-    if (!content) {
-        alert("내용을 입력해주세요!"); // 알림창 띄우기
+    renderComments(currentPostId);
+    detailView.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    
+    setTimeout(scrollToBottom, 100);
+  }
+
+  function renderComments(postId) {
+    commentList.innerHTML = '';
+    const filteredComments = allComments.filter(c => String(c.post_id) === String(postId));
+
+    if (filteredComments.length === 0) {
+        commentList.innerHTML = '<p style="text-align:center; color:#999; font-size:13px; padding:20px;">첫 댓글을 남겨보세요!</p>';
         return;
     }
     
-    if (!currentPostId) {
-        alert("게시글 정보를 읽지 못했습니다. 새로고침 해주세요.");
-        return;
-    }
+    // [오래된 순 정렬]
+    filteredComments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-    showMessage('댓글 저장 중...', false, true);
+    filteredComments.forEach(comment => {
+        const item = document.createElement('div');
+        item.className = 'comment-item';
+        item.innerHTML = `
+            <div class="comment-item-header">
+                <span class="comment-author">${comment.author}</span>
+                <span class="comment-time">${timeSince(comment.timestamp)}</span>
+            </div>
+            <p class="comment-text">${comment.content}</p>
+        `;
+        commentList.appendChild(item);
+    });
+    scrollToBottom();
+  }
+
+  async function handleCommentSubmit(e) {
+    e.preventDefault();
+    const author = commentInputAuthor.value.trim() || '익명';
+    const content = commentInputText.value.trim();
+
+    if (!content) { alert("내용을 입력하세요!"); return; }
+    if (!currentPostId) return;
+
     commentSubmitButton.disabled = true;
+    commentSubmitButton.style.opacity = '0.5';
 
     const commentData = {
         action_type: 'new_comment',
@@ -177,23 +216,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (data.success) {
-            showMessage('✅ 댓글 등록 완료!', false);
             commentInputText.value = ''; 
+            
+            // 가짜 댓글 추가 (반응 속도 향상)
+            const fakeComment = document.createElement('div');
+            fakeComment.className = 'comment-item';
+            fakeComment.style.border = "1px solid var(--accent)";
+            fakeComment.innerHTML = `
+                <div class="comment-item-header">
+                    <span class="comment-author">${author}</span>
+                    <span class="comment-time">방금</span>
+                </div>
+                <p class="comment-text">${content}</p>
+            `;
+            commentList.appendChild(fakeComment);
+            
+            scrollToBottom();
             fetchData(); 
         } else {
             showMessage(`❌ 실패: ${data.message}`, true);
         }
     } catch (error) {
         console.error(error);
-        showMessage('네트워크 오류 발생', true);
+        showMessage('전송 오류', true);
     } finally {
         commentSubmitButton.disabled = false;
+        commentSubmitButton.style.opacity = '1';
     }
   }
 
-  // 게시글 저장 (POST)
   async function savePost() {
-    // (기존 코드와 동일)
     const titleInput = document.getElementById('post-title-field');
     const itemInput = document.getElementById('item-name-write');
     const priceInput = document.getElementById('price-write');
@@ -231,53 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeWriteButtonUpload.disabled = false;
   }
 
-  // UI 제어
-  function openDetailView(postData) {
-    currentPostId = postData.timestamp; 
-    
-    let contentText = postData.memo || '';
-    let locationText = '장소 미정';
-    const locMatch = contentText.match(/^\[장소:\s*(.*?)\]\n?/);
-    if (locMatch) {
-        locationText = locMatch[1]; 
-        contentText = contentText.replace(locMatch[0], '');
-    }
-
-    detailTitle.textContent = postData.item_name;
-    detailItem.textContent = postData.item_type;
-    detailPrice.textContent = formatPrice(postData.price);
-    detailLocation.textContent = locationText;
-    detailContent.textContent = contentText;
-
-    renderComments(currentPostId);
-    detailView.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function renderComments(postId) {
-    commentList.innerHTML = '';
-    // 문자열 변환 비교 (안전장치)
-    const filteredComments = allComments.filter(c => String(c.post_id) === String(postId));
-
-    if (filteredComments.length === 0) {
-        commentList.innerHTML = '<p style="text-align:center; color:#999; font-size:13px; padding:20px;">아직 댓글이 없습니다.</p>';
-        return;
-    }
-    filteredComments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    filteredComments.forEach(comment => {
-        const item = document.createElement('div');
-        item.className = 'comment-item';
-        item.innerHTML = `
-            <div class="comment-item-header">
-                <span class="comment-author">${comment.author}</span>
-                <span class="comment-time">${timeSince(comment.timestamp)}</span>
-            </div>
-            <p class="comment-text">${comment.content}</p>
-        `;
-        commentList.appendChild(item);
-    });
-  }
-
   function closeDetailView() {
     detailView.classList.remove('is-open');
     document.body.style.overflow = 'auto';
@@ -303,9 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
   closeWriteButtonUpload.addEventListener('click', savePost);
   backToListButton.addEventListener('click', closeDetailView);
   
-  // [수정됨] 댓글 버튼 이벤트 연결 방식 강화
   if (commentSubmitButton) {
-      commentSubmitButton.onclick = handleCommentSubmit; // 확실하게 연결
+      commentSubmitButton.onclick = handleCommentSubmit;
   }
 
 });

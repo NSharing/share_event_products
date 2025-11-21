@@ -22,47 +22,10 @@
       </header>
   
       <section class="posts">
-        <article class="post" data-title="제로콜라 2+1 같이 나눌 분?" data-item="제로콜라 3개 (2+1)" data-price="3,000원 (1개당 1,000원)" data-location="회사 탕비실 냉장고" data-content="퇴근 전에 가져가실 분 구합니다. 저는 1개만 필요해서 2개 남아요! 댓글 달아주세요.">
-          <div class="post-row">
-            <div>
-              <h2 class="title">제로콜라 2+1 같이 나눌 분?</h2>
-              <p class="preview">3개는 너무 많아서… 1개씩 챙겨가요 ㅋㅋ</p>
-              <p class="post-time">5분 전</p>
-            </div>
-            <div class="comment-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>
-              <span class="comment-count">6</span>
-            </div>
-          </div>
-        </article>
-        <article class="post" data-title="편의점 2+1 삼다수 나눠요" data-item="삼다수 500ml 3개" data-price="2,200원 (1개당 733원)" data-location="역 근처 편의점 앞" data-content="오늘 오후 6시에 거래하고 싶습니다. 1개만 사려는데 3개 사야해서 같이 사실 분 구합니다.">
-          <div class="post-row">
-            <div>
-              <h2 class="title">편의점 2+1 삼다수 나눠요</h2>
-              <p class="preview">1개만 필요한데 3개는 많아서 같이 살 사람?</p>
-              <p class="post-time">12분 전</p>
-            </div>
-            <div class="comment-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>
-              <span class="comment-count">3</span>
-            </div>
-          </div>
-        </article>
-        <article class="post" data-title="쿠키 2+1 같이 사실 분!" data-item="초코 쿠키 3봉지" data-price="6,000원 (1봉지당 2,000원)" data-location="집 근처 아파트 단지" data-content="저는 한 봉지만 있으면 됩니다! 두 봉지 가져가실 분 채팅 주세요.">
-          <div class="post-row">
-            <div>
-              <h2 class="title">쿠키 2+1 같이 사실 분!</h2>
-              <p class="preview">저는 1개만 가져가고 2개 나눠드릴게요~</p>
-              <p class="post-time">방금 전</p>
-            </div>
-            <div class="comment-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6436" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></svg>
-              <span class="comment-count">12</span>
-            </div>
-          </div>
-        </article>
-      </section>
-    </div> <button class="fab" id="open-write" aria-label="글쓰기">✎</button>
+        </section>
+    </div> 
+
+    <button class="fab" id="open-write" aria-label="글쓰기">✎</button>
     
     <div class="write-modal" id="write-modal">
         <header class="app-header">
@@ -100,7 +63,9 @@
                 <button class="upload-button" id="close-write-upload" aria-label="게시글 올리기">올리기</button>
             </div>
         </div>
-    </div> <div class="detail-view" id="detail-view">
+    </div> 
+
+    <div class="detail-view" id="detail-view">
         <header class="detail-header">
             <button id="back-to-list" class="back-button" aria-label="뒤로 가기">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -108,7 +73,7 @@
             <h2>게시글 상세</h2>
         </header>
         
-        <div class="detail-scroll-content">
+        <div class="detail-scroll-content" id="detail-scroll-area">
             <h1 class="post-detail-title" id="detail-title"></h1>
             
             <div class="detail-metadata">
@@ -130,17 +95,19 @@
             
             <section class="comment-section">
                 <h3 class="comment-title">댓글</h3>
-                
-                <div class="comment-input-box">
-                    <input type="text" id="comment-author" placeholder="작성자 이름" aria-label="댓글 작성자 이름">
-                    <textarea id="comment-text" placeholder="댓글 내용을 입력해주세요" aria-label="댓글 내용"></textarea>
-                    <button id="submit-comment" class="comment-submit-button">작성</button>
-                </div>
-                
-                <div class="comment-list" id="comment-list">
-                    </div>
+                <div class="comment-list" id="comment-list"></div>
             </section>
         </div>
-    </div> </div> <script src="script.js"></script>
+        
+        <div class="comment-input-sticky">
+            <div class="comment-input-row">
+                <input type="text" id="comment-author" placeholder="이름" class="input-mini">
+                <input type="text" id="comment-text" placeholder="댓글을 입력하세요..." class="input-flex">
+                <button id="submit-comment" class="btn-send">작성</button>
+            </div>
+        </div>
+    </div> 
+
+  </div> <script src="script.js"></script>
 </body>
 </html>
