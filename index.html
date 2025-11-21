@@ -9,10 +9,21 @@
 <body>
   <div class="frame">
 
+    <div class="overlay" id="overlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>메뉴</h2>
+        </div>
+        <ul class="menu-list">
+            <li><button id="menu-home" class="menu-btn active">🏠 홈 (게시글 목록)</button></li>
+            <li><button id="menu-stats" class="menu-btn">📊 통계 (카테고리 분석)</button></li>
+        </ul>
+    </nav>
+
     <div class="list-content" id="list-view">
       <div class="top-left">
-        <button class="more-icon" aria-label="전체 메뉴">
-          <svg width="20" height="14" viewBox="0 0 18 14"><rect width="18" height="2" rx="1" fill="#0f172a"/><rect y="6" width="18" height="2" rx="1" fill="#0f172a" opacity="0.7"/><rect y="12" width="18" height="2" rx="1" fill="#0f172a" opacity="0.5"/></svg>
+        <button class="more-icon" id="open-menu-btn" aria-label="메뉴 열기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
       </div>
   
@@ -24,6 +35,21 @@
       <section class="posts">
         </section>
     </div> 
+
+    <div class="stats-content" id="stats-view">
+        <div class="top-left">
+            <button class="more-icon" id="open-menu-btn-stats" aria-label="메뉴 열기">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+        <header class="header">
+            <h1>N빵 <span>통계</span></h1>
+            <p>어떤 물건이 가장 많이 올라올까요?</p>
+        </header>
+        
+        <div class="stats-container" id="stats-container">
+            </div>
+    </div>
 
     <button class="fab" id="open-write" aria-label="글쓰기">✎</button>
     
@@ -42,7 +68,16 @@
             
             <div class="input-group">
                 <label for="item-name-write" class="input-label">품목</label>
-                <input type="text" id="item-name-write" class="styled-input" placeholder="" aria-label="나눌 물품의 이름">
+                <select id="item-name-write" class="styled-input">
+                    <option value="" disabled selected>카테고리 선택</option>
+                    <option value="음료/커피">음료/커피</option>
+                    <option value="과자/간식">과자/간식</option>
+                    <option value="라면/가공식품">라면/가공식품</option>
+                    <option value="빵/샌드위치">빵/샌드위치</option>
+                    <option value="문구류">문구류</option>
+                    <option value="생활용품">생활용품</option>
+                    <option value="기타">기타</option>
+                </select>
             </div>
 
             <div class="input-group">
@@ -103,7 +138,7 @@
             <div class="comment-input-row">
                 <input type="text" id="comment-author" placeholder="이름" class="input-mini">
                 <input type="text" id="comment-text" placeholder="댓글을 입력하세요..." class="input-flex">
-                <button id="submit-comment" class="btn-send">작성</button>
+                <button id="submit-comment" class="btn-send">등록</button>
             </div>
         </div>
     </div> 

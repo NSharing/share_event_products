@@ -6,28 +6,40 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzhawNm5Wulg9AMFuw2x1Bw
 document.addEventListener('DOMContentLoaded', () => {
   console.log("✅ 자바스크립트 로드 완료");
 
-  // DOM 요소 가져오기
+  // ------------------------- DOM 요소 가져오기 -------------------------
   const postsContainer = document.querySelector('.posts');
   const openWriteButton = document.getElementById('open-write');
   const closeWriteButtonX = document.getElementById('close-write-x');
   const closeWriteButtonUpload = document.getElementById('close-write-upload');
   const writeModal = document.getElementById('write-modal');
+  
+  // 상세 페이지 요소
   const detailView = document.getElementById('detail-view');
   const backToListButton = document.getElementById('back-to-list');
-  
   const detailTitle = document.getElementById('detail-title');
   const detailItem = document.getElementById('detail-item');
   const detailPrice = document.getElementById('detail-price');
   const detailLocation = document.getElementById('detail-location');
   const detailContent = document.getElementById('detail-content');
 
-  // 댓글 요소 가져오기
+  // 댓글 요소
   const commentList = document.getElementById('comment-list');
   const commentInputAuthor = document.getElementById('comment-author');
   const commentInputText = document.getElementById('comment-text');
   const commentSubmitButton = document.getElementById('submit-comment');
 
-  // 전역 변수
+  // [NEW] 사이드바 및 통계 요소
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const openMenuBtn = document.getElementById('open-menu-btn');
+  const openMenuBtnStats = document.getElementById('open-menu-btn-stats');
+  const menuHome = document.getElementById('menu-home');
+  const menuStats = document.getElementById('menu-stats');
+  const listView = document.getElementById('list-view');
+  const statsView = document.getElementById('stats-view');
+  const statsContainer = document.getElementById('stats-container');
+
+  // ------------------------- 전역 변수 -------------------------
   let allPosts = [];
   let allComments = [];
   let currentPostId = null; 
@@ -44,23 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // 유틸리티 함수
   // -------------------------------------------------------------
   function showMessage(text, isError = false, showLoader = false) {
-    messageBox.innerHTML = `
-        ${showLoader ? '<span class="loading-indicator"></span>' : ''}
-        <span>${text}</span>
-    `;
+    messageBox.innerHTML = `${showLoader ? '<span class="loading-indicator"></span>' : ''}<span>${text}</span>`;
     messageBox.style.backgroundColor = isError ? 'rgba(255, 60, 60, 0.9)' : 'rgba(0, 0, 0, 0.8)';
     messageBox.classList.add('show');
-    
-    if (!showLoader) {
-        setTimeout(() => {
-            messageBox.classList.remove('show');
-        }, 3000);
-    }
+    if (!showLoader) setTimeout(() => messageBox.classList.remove('show'), 3000);
   }
 
   function timeSince(timestamp) {
-    const now = new Date();
-    const past = new Date(timestamp); 
+    const now = new Date(); const past = new Date(timestamp); 
     if (isNaN(past.getTime())) return "방금 전";
     const seconds = Math.floor((now - past) / 1000);
     if (seconds < 60) return "방금 전";
@@ -78,15 +81,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function scrollToBottom() {
     const scrollArea = document.getElementById('detail-scroll-area');
-    if (scrollArea) {
-        scrollArea.scrollTop = scrollArea.scrollHeight;
-    }
+    if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
   }
 
   // -------------------------------------------------------------
-  // 기능 함수들
+  // [NEW] 사이드바 & 뷰 전환 로직
   // -------------------------------------------------------------
+  function toggleSidebar(show) {
+      if (show) {
+          sidebar.classList.add('is-open');
+          overlay.classList.add('is-open');
+      } else {
+          sidebar.classList.remove('is-open');
+          overlay.classList.remove('is-open');
+      }
+  }
 
+  // 탭 전환 (홈 <-> 통계)
+  function switchTab(tabName) {
+      toggleSidebar(false); // 메뉴 닫기
+      
+      if (tabName === 'home') {
+          statsView.classList.remove('is-active');
+          openWriteButton.classList.remove('hidden'); // 글쓰기 버튼 보이기
+          menuHome.classList.add('active');
+          menuStats.classList.remove('active');
+      } else if (tabName === 'stats') {
+          statsView.classList.add('is-active');
+          openWriteButton.classList.add('hidden'); // 통계에선 글쓰기 숨기기
+          menuStats.classList.add('active');
+          menuHome.classList.remove('active');
+          renderStats(); // 통계 그래프 그리기
+      }
+  }
+
+  // 통계 계산 및 그리기
+  function renderStats() {
+      statsContainer.innerHTML = '';
+      
+      // 카테고리별 개수 세기
+      const counts = {};
+      allPosts.forEach(post => {
+          const type = post.item_type || '기타';
+          counts[type] = (counts[type] || 0) + 1;
+      });
+
+      // 정렬 (많은 순)
+      const sortedTypes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      const maxCount = sortedTypes.length > 0 ? counts[sortedTypes[0]] : 1;
+
+      if (sortedTypes.length === 0) {
+          statsContainer.innerHTML = '<p style="text-align:center;color:#999;margin-top:50px;">데이터가 충분하지 않습니다.</p>';
+          return;
+      }
+
+      sortedTypes.forEach(type => {
+          const count = counts[type];
+          const percentage = (count / maxCount) * 100; // 최대값 기준 비율
+
+          const item = document.createElement('div');
+          item.className = 'stat-item';
+          item.innerHTML = `
+              <div class="stat-label">${type}</div>
+              <div class="stat-bar-bg">
+                  <div class="stat-bar-fill" style="width: ${percentage}%"></div>
+              </div>
+              <div class="stat-count">${count}개</div>
+          `;
+          statsContainer.appendChild(item);
+      });
+  }
+
+  // -------------------------------------------------------------
+  // 데이터 통신
+  // -------------------------------------------------------------
   async function fetchData() {
     try {
         const response = await fetch(API_URL);
@@ -96,6 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPosts(); 
         if (detailView.classList.contains('is-open') && currentPostId) {
             renderComments(currentPostId);
+        }
+        // 통계 화면이 켜져있다면 통계도 갱신
+        if (statsView.classList.contains('is-active')) {
+            renderStats();
         }
     } catch (error) {
         console.error("데이터 로딩 오류:", error);
@@ -116,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const relativeTime = timeSince(post.timestamp);
         const rawMemo = post.memo || '';
         const previewText = rawMemo.substring(0, 40) + (rawMemo.length > 40 ? '...' : '');
-        
         const commentCount = allComments.filter(c => String(c.post_id) === String(post.timestamp)).length;
 
         const postElement = document.createElement('article');
@@ -142,40 +213,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openDetailView(postData) {
     currentPostId = postData.timestamp; 
-    
     let contentText = postData.memo || '';
     let locationText = '장소 미정';
     const locMatch = contentText.match(/^\[장소:\s*(.*?)\]\n?/);
-    if (locMatch) {
-        locationText = locMatch[1]; 
-        contentText = contentText.replace(locMatch[0], '');
-    }
+    if (locMatch) { locationText = locMatch[1]; contentText = contentText.replace(locMatch[0], ''); }
 
     detailTitle.textContent = postData.item_name;
     detailItem.textContent = postData.item_type;
     detailPrice.textContent = formatPrice(postData.price);
     detailLocation.textContent = locationText;
     detailContent.textContent = contentText;
-
     renderComments(currentPostId);
     detailView.classList.add('is-open');
     document.body.style.overflow = 'hidden';
-    
     setTimeout(scrollToBottom, 100);
   }
 
   function renderComments(postId) {
     commentList.innerHTML = '';
     const filteredComments = allComments.filter(c => String(c.post_id) === String(postId));
-
     if (filteredComments.length === 0) {
         commentList.innerHTML = '<p style="text-align:center; color:#999; font-size:13px; padding:20px;">첫 댓글을 남겨보세요!</p>';
         return;
     }
-    
-    // [오래된 순 정렬]
     filteredComments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
     filteredComments.forEach(comment => {
         const item = document.createElement('div');
         item.className = 'comment-item';
@@ -195,54 +256,29 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const author = commentInputAuthor.value.trim() || '익명';
     const content = commentInputText.value.trim();
-
     if (!content) { alert("내용을 입력하세요!"); return; }
     if (!currentPostId) return;
 
     commentSubmitButton.disabled = true;
     commentSubmitButton.style.opacity = '0.5';
-
-    const commentData = {
-        action_type: 'new_comment',
-        post_id: currentPostId, 
-        author: author,
-        content: content
-    };
-
+    const commentData = { action_type: 'new_comment', post_id: currentPostId, author: author, content: content };
     const formData = new URLSearchParams({ payload: JSON.stringify(commentData) });
 
     try {
         const response = await fetch(API_URL, { method: 'POST', body: formData });
         const data = await response.json();
-
         if (data.success) {
             commentInputText.value = ''; 
-            
-            // 가짜 댓글 추가 (반응 속도 향상)
             const fakeComment = document.createElement('div');
             fakeComment.className = 'comment-item';
             fakeComment.style.border = "1px solid var(--accent)";
-            fakeComment.innerHTML = `
-                <div class="comment-item-header">
-                    <span class="comment-author">${author}</span>
-                    <span class="comment-time">방금</span>
-                </div>
-                <p class="comment-text">${content}</p>
-            `;
+            fakeComment.innerHTML = `<div class="comment-item-header"><span class="comment-author">${author}</span><span class="comment-time">방금</span></div><p class="comment-text">${content}</p>`;
             commentList.appendChild(fakeComment);
-            
             scrollToBottom();
             fetchData(); 
-        } else {
-            showMessage(`❌ 실패: ${data.message}`, true);
-        }
-    } catch (error) {
-        console.error(error);
-        showMessage('전송 오류', true);
-    } finally {
-        commentSubmitButton.disabled = false;
-        commentSubmitButton.style.opacity = '1';
-    }
+        } else { showMessage(`❌ 실패: ${data.message}`, true); }
+    } catch (error) { showMessage('전송 오류', true); } 
+    finally { commentSubmitButton.disabled = false; commentSubmitButton.style.opacity = '1'; }
   }
 
   async function savePost() {
@@ -252,23 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const locationInput = document.getElementById('location-write');
     const contentInput = document.getElementById('post-content-write');
 
-    if (!titleInput.value.trim() || !itemInput.value.trim()) return;
+    if (!titleInput.value.trim() || !itemInput.value) { alert("제목과 품목은 필수입니다."); return; }
 
     showMessage('게시글 저장 중...', false, true);
     closeWriteButtonUpload.disabled = true;
-
     const fullMemo = `[장소: ${locationInput.value.trim()}]\n${contentInput.value.trim()}`;
     const cleanPrice = priceInput.value.replace(/[^0-9]/g, '');
-
-    const postData = {
-        action_type: 'new_post',
-        item_name: titleInput.value.trim(),
-        item_type: itemInput.value.trim(),
-        price: parseInt(cleanPrice) || 0,
-        memo: fullMemo,
-        comment_author_id: '익명User' 
-    };
-
+    const postData = { action_type: 'new_post', item_name: titleInput.value.trim(), item_type: itemInput.value, price: parseInt(cleanPrice) || 0, memo: fullMemo, comment_author_id: '익명User' };
     const formData = new URLSearchParams({ payload: JSON.stringify(postData) });
     try {
         const response = await fetch(API_URL, { method: 'POST', body: formData });
@@ -307,9 +333,13 @@ document.addEventListener('DOMContentLoaded', () => {
   closeWriteButtonX.addEventListener('click', closeWriteModal);
   closeWriteButtonUpload.addEventListener('click', savePost);
   backToListButton.addEventListener('click', closeDetailView);
-  
-  if (commentSubmitButton) {
-      commentSubmitButton.onclick = handleCommentSubmit;
-  }
+  if (commentSubmitButton) commentSubmitButton.onclick = handleCommentSubmit;
+
+  // [NEW] 사이드바 메뉴 이벤트
+  openMenuBtn.addEventListener('click', () => toggleSidebar(true));
+  openMenuBtnStats.addEventListener('click', () => toggleSidebar(true)); // 통계화면에서도 메뉴 열기 가능
+  overlay.addEventListener('click', () => toggleSidebar(false));
+  menuHome.addEventListener('click', () => switchTab('home'));
+  menuStats.addEventListener('click', () => switchTab('stats'));
 
 });
