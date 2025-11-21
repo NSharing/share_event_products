@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>행사상품 N빵 해요</title>
+  
+  <!-- CSS 스타일 연결 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="frame">
+
+    <!-- ------------------------------------------- -->
+    <!-- 1. 게시글 목록 화면 (초기 화면) -->
+    <!-- ------------------------------------------- -->
+    <div class="list-content" id="list-view">
+      <div class="top-left">
+        <button class="more-icon" aria-label="전체 메뉴">
+          <svg width="20" height="14" viewBox="0 0 18 14"><rect width="18" height="2" rx="1" fill="#0f172a"/><rect y="6" width="18" height="2" rx="1" fill="#0f172a" opacity="0.7"/><rect y="12" width="18" height="2" rx="1" fill="#0f172a" opacity="0.5"/></svg>
+        </button>
+      </div>
+      <!-- 새로고침 아이콘 -->
+      <button class="refresh-icon" id="refresh-posts" aria-label="게시글 새로고침">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 12a9.7 9.7 0 0 1 18.5-3.3M2.5 22v-6h6"/><path d="M21.5 12a9.7 9.7 0 0 1-18.5 3.3"/></svg>
+      </button>
+  
+      <header class="header">
+        <h1>행사상품 <span>N빵</span> 해요</h1>
+        <p>1+1도 3+1도 사이좋게 나눠먹기!</p>
+      </header>
+  
+      <section class="posts" id="posts-container">
+        <!-- 데이터 로딩 중 메시지 -->
+        <p style="text-align: center; color: var(--muted);">데이터를 불러오는 중입니다...</p>
+      </section>
+    </div> <!-- /list-content -->
+
+    <!-- 글쓰기 아이콘 -->
+    <button class="fab" id="open-write" aria-label="글쓰기">✎</button>
+    
+    <!-- ------------------------------------------- -->
+    <!-- 2. 글쓰기 모달 화면 -->
+    <!-- ------------------------------------------- -->
+    <div class="write-modal" id="write-modal">
+        <!-- 상단 헤더 (앱 제목 - 모달 내부에 포함) -->
+        <header class="app-header">
+            <h1>글쓰기</h1>
+            <p>나눌 상품 정보를 정확히 입력해주세요.</p>
+        </header>
+
+        <!-- 글쓰기 입력 컨테이너 -->
+        <div class="write-container">
+
+            <!-- 품목명 입력 그룹 -->
+            <div class="input-group input-title-group">
+                <div class="title-header">
+                    <label for="item-name" class="input-label">품목명</label>
+                    <span class="input-sublabel">무엇을 나눌지 구체적으로 적어주세요.</span>
+                </div>
+                <input type="text" id="item-name" class="input-title-field" placeholder="예: 메로나 2+1, 신라면 5개입" aria-label="나눌 물품의 이름">
+            </div>
+            
+            <!-- 품목 종류 (item_type) -->
+            <div class="input-group">
+                <label for="item-type" class="input-label">품목 종류</label>
+                <select id="item-type" class="styled-select" aria-label="품목 카테고리">
+                    <option value="음료">음료</option>
+                    <option value="과자">과자/빵</option>
+                    <option value="라면">라면/즉석식품</option>
+                    <option value="아이스크림">아이스크림</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+
+            <!-- 가격 입력 그룹 (price) -->
+            <div class="input-group">
+                <label for="price" class="input-label">분담 금액</label>
+                <input type="number" id="price" class="styled-input" placeholder="예: 500 (원)" aria-label="개별 분담 금액">
+            </div>
+            
+            <!-- 익명 ID (post_id) -->
+            <div class="input-group">
+                <label for="post-id" class="input-label">익명 ID</label>
+                <input type="text" id="post-id" class="styled-input" placeholder="학번, 닉네임 등 거래 식별용" aria-label="거래 식별용 ID">
+            </div>
+
+            
+            <!-- 상세 내용/본문 (memo) -->
+            <div class="content-area-wrapper">
+                <textarea id="memo" class="input-content" placeholder="상세 내용, 거래 희망 장소, 시간 등 기타 메모를 적어주세요."></textarea>
+            </div>
+
+            <!-- 올리기 버튼 -->
+            <div class="upload-button-wrapper">
+                <button class="upload-button" id="submit-post" aria-label="게시글 올리기">글 올리기</button>
+            </div>
+        </div> <!-- /write-container -->
+    </div> <!-- /write-modal -->
+    
+    <!-- 메시지 및 로딩 표시 상자 -->
+    <div class="message-box" id="message-box"></div>
+
+  </div> <!-- /frame -->
+
+  <!-- JavaScript 기능 파일 연결 -->
+  <script src="script.js"></script>
+</body>
+</html>
