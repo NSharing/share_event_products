@@ -24,11 +24,24 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
       </div>
+
+      <div class="top-right">
+        <button class="more-icon" id="toggle-search-btn" aria-label="검색 열기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+      </div>
   
       <header class="header">
         <h1>행사상품 <span>N빵</span> 해요</h1>
         <p>1+1도 3+1도 사이좋게 나눠먹기!</p>
       </header>
+
+      <div class="search-box-wrapper" id="search-area">
+          <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="search-input" placeholder="상품명, 장소 검색...">
+          </div>
+      </div>
   
       <div class="category-filter">
           <button class="filter-btn active" data-cat="all">전체</button>
@@ -99,7 +112,7 @@
 
             <div class="input-group">
                 <label for="password-write" class="input-label" style="color:var(--accent);">비밀번호</label>
-                <input type="password" id="password-write" class="styled-input" placeholder="숫자 4자리 (본인확인용)" maxlength="4" inputmode="numeric">
+                <input type="password" id="password-write" class="styled-input" placeholder="거래완료 시 필요 (숫자 4자리)" maxlength="4" inputmode="numeric">
             </div>
             
             <div class="content-area-wrapper">

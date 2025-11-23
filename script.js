@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const dashboardGrid = document.getElementById('dashboard-grid');
 
   const filterBtns = document.querySelectorAll('.filter-btn');
+  const searchInput = document.getElementById('search-input');
+  const toggleSearchBtn = document.getElementById('toggle-search-btn'); // [NEW] 검색 토글 버튼
+  const searchArea = document.getElementById('search-area'); // [NEW] 검색창 영역
 
   let allPosts = [];
   let allComments = [];
@@ -80,6 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scrollArea) scrollArea.scrollTop = scrollArea.scrollHeight;
   }
 
+  // -------------------------------------------------------------
+  // [NEW] 검색창 토글 기능
+  // -------------------------------------------------------------
+  toggleSearchBtn.addEventListener('click', () => {
+      searchArea.classList.toggle('visible');
+      if (searchArea.classList.contains('visible')) {
+          searchInput.focus(); // 열릴 때 바로 입력 가능하게
+      }
+  });
+
+  // 필터링
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
@@ -89,92 +103,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // [수정됨] 수정/삭제/완료 버튼 로직
-  // -------------------------------------------------------------
-  
-  // 1. 수정 버튼: 비밀번호 먼저 확인 후 모달 열기
+  // 검색어 입력 시 자동 필터링
+  searchInput.addEventListener('input', () => {
+      renderPosts();
+  });
+
+  // 수정/삭제/완료 로직
   btnEdit.addEventListener('click', async () => {
       const post = allPosts.find(p => p.timestamp === currentPostId);
       if (!post) return;
-
       const password = prompt("수정하려면 비밀번호(4자리)를 입력하세요.");
       if (!password) return;
-
       showMessage('비밀번호 확인 중...', false, true);
-
-      // 서버에 비밀번호 확인 요청
-      const payload = {
-          action_type: 'verify_password',
-          post_id: currentPostId,
-          password: password
-      };
-      
+      const payload = { action_type: 'verify_password', post_id: currentPostId, password: password };
       try {
-          const response = await fetch(API_URL, { 
-              method: 'POST', 
-              body: new URLSearchParams({ payload: JSON.stringify(payload) }) 
-          });
+          const response = await fetch(API_URL, { method: 'POST', body: new URLSearchParams({ payload: JSON.stringify(payload) }) });
           const data = await response.json();
-
           if (data.success) {
-              // 확인 성공 시 모달 열기
-              showMessage('확인되었습니다.', false); // 짧게 표시
-              
+              showMessage('확인되었습니다.', false);
               isEditing = true;
               writeModalTitle.innerHTML = "게시글 <span>수정</span>";
               document.getElementById('close-write-upload').textContent = "수정하기";
-              
               document.getElementById('post-title-field').value = post.item_name;
               document.getElementById('item-name-write').value = post.item_type;
               document.getElementById('price-write').value = post.price;
-              
               let contentText = post.memo || '';
               let locationText = '';
               const locMatch = contentText.match(/^\[장소:\s*(.*?)\]\n?/);
-              if (locMatch) {
-                  locationText = locMatch[1];
-                  contentText = contentText.replace(locMatch[0], '');
-              }
+              if (locMatch) { locationText = locMatch[1]; contentText = contentText.replace(locMatch[0], ''); }
               document.getElementById('location-write').value = locationText;
               document.getElementById('post-content-write').value = contentText;
-              
-              // 비밀번호 필드에 확인된 비밀번호 미리 채워주기 (편의성)
               document.getElementById('password-write').value = password;
-              
               openWriteModal();
-          } else {
-              showMessage(`❌ ${data.message}`, true);
-          }
-      } catch(e) {
-          showMessage('네트워크 오류가 발생했습니다.', true);
-      }
+          } else { showMessage(`❌ ${data.message}`, true); }
+      } catch(e) { showMessage('오류 발생', true); }
   });
 
-  // 2. 삭제 버튼
   btnDelete.addEventListener('click', async () => {
       const password = prompt("삭제하려면 게시글 비밀번호(4자리)를 입력하세요.");
       if (!password) return;
-      if (!confirm("정말 삭제하시겠습니까? 복구할 수 없습니다.")) return;
-
+      if (!confirm("정말 삭제하시겠습니까?")) return;
       showMessage('삭제 중...', false, true);
-      await sendStatusRequest({
-          action_type: 'delete_post',
-          post_id: currentPostId,
-          password: password
-      }, "삭제되었습니다.");
+      await sendStatusRequest({ action_type: 'delete_post', post_id: currentPostId, password: password }, "삭제되었습니다.");
   });
 
-  // 3. 거래완료 버튼
   btnComplete.addEventListener('click', async () => {
       const password = prompt("상태 변경을 위해 비밀번호를 입력하세요.");
       if (!password) return;
-
-      await sendStatusRequest({
-          action_type: 'update_status',
-          post_id: currentPostId,
-          password: password
-      }, "거래가 완료되었습니다!");
+      await sendStatusRequest({ action_type: 'update_status', post_id: currentPostId, password: password }, "거래가 완료되었습니다!");
   });
 
   async function sendStatusRequest(payload, successMsg) {
@@ -186,10 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
               showMessage(`🎉 ${successMsg}`, false);
               closeDetailView();
               fetchData();
-          } else {
-              alert(data.message);
-              showMessage(`❌ 실패: ${data.message}`, true);
-          }
+          } else { alert(data.message); showMessage(`❌ 실패: ${data.message}`, true); }
       } catch (e) { showMessage('오류 발생', true); }
   }
 
@@ -211,13 +184,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPosts() {
     postsContainer.innerHTML = ''; 
+    const keyword = searchInput.value.toLowerCase().trim(); 
+
     let filtered = allPosts;
+
     if (currentFilter !== 'all') {
         filtered = allPosts.filter(p => p.item_type === currentFilter);
     }
 
+    if (keyword) {
+        filtered = filtered.filter(p => 
+            p.item_name.toLowerCase().includes(keyword) || 
+            (p.memo && p.memo.toLowerCase().includes(keyword))
+        );
+    }
+
     if (filtered.length === 0) {
-        postsContainer.innerHTML = '<p style="text-align:center; color:var(--muted); padding-top:50px;">글이 없습니다.</p>';
+        postsContainer.innerHTML = '<p style="text-align:center; color:var(--muted); padding-top:50px;">조건에 맞는 글이 없습니다.</p>';
         return;
     }
     
