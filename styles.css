@@ -193,12 +193,27 @@ body{
 .comment-count{font-size:11px;color:var(--accent);} 
 .post.completed { opacity: 0.6; background: #f9fafb; }
 .post.completed .title { text-decoration: line-through; color: #94a3b8; }
+
+/* 글쓰기 모달 */
 .app-header { text-align: center; padding: 30px 22px 20px; flex-shrink: 0; background: var(--card); position: relative; }
 .write-close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; cursor: pointer; padding: 5px; color: #0f172a; font-size: 20px; font-weight: bold; }
 .app-header h1 {font-size: 30px;font-weight: 700;color: #0f172a;margin:0;}
 .app-header p {margin: 6px 0 0;color: var(--muted);font-size: 10px;font-weight: 500;}
 .write-container { flex-grow: 1; background: var(--card); padding: 0 22px; display: flex; flex-direction: column; overflow-y: auto; }
+
+/* [수정] 기본 input-group */
 .input-group { display: flex; align-items: center; margin-bottom: 20px; min-height: 40px; }
+
+/* [NEW] 세로형 input-group (가격/계산기용) */
+.input-group-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px; /* 내부 요소 간격 */
+  margin-bottom: 30px; /* 아래쪽 그룹(거래장소)과의 간격 넓힘 */
+  min-height: auto;
+}
+
 .input-label {font-size: 16px;font-weight: 700;color: #0f172a;width: 80px; flex-shrink: 0;margin-right: 15px;}
 .styled-input { flex-grow: 1;font-size: 14px;font-weight: 500;padding: 10px 15px;border: none;outline: none; background: #f7f7f7;border-radius: var(--radius);box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); height: 40px;box-sizing: border-box; }
 select.styled-input { cursor: pointer; color: #0f172a; appearance: auto; }
@@ -211,6 +226,8 @@ select.styled-input { cursor: pointer; color: #0f172a; appearance: auto; }
 .upload-button-wrapper {display: flex;justify-content: flex-end;padding: 10px 0 20px;flex-shrink: 0;}
 .upload-button { background: var(--accent);color: white;border: none;border-radius: 8px;font-size: 14px; font-weight: 600;padding: 10px 25px;cursor: pointer;box-shadow: 0 4px 12px rgba(255,100,54,0.3); transition: background 0.2s; }
 .upload-button:hover {background: #e0532e;}
+
+/* 상세 페이지 */
 .detail-header { display: flex; align-items: center; padding: 16px 22px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
 .detail-header h2 { flex-grow: 1; text-align: center; font-size: 16px; font-weight: 700; margin: 0; transform: translateX(-12px); }
 .detail-header .back-button { background: none; border: none; cursor: pointer; padding: 0; width: 24px; height: 24px; }
@@ -243,19 +260,15 @@ select.styled-input { cursor: pointer; color: #0f172a; appearance: auto; }
 .action-btn:hover { opacity: 0.9; }
 #btn-edit { background: #f1f5f9; color: #475569; }
 
-/* 사이드바 & 통계 공통 스타일 */
-.sidebar { position: absolute; top: 0; left: 0; width: 70%; height: 100%; background: white; z-index: 50; transform: translateX(-100%); transition: transform 0.3s ease; box-shadow: 2px 0 10px rgba(0,0,0,0.1); border-top-left-radius: 20px; border-bottom-left-radius: 20px; padding: 20px; box-sizing: border-box; }
-.sidebar.is-open { transform: translateX(0); }
-.overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; border-radius: 20px; }
-.overlay.is-open { opacity: 1; visibility: visible; }
-.sidebar-header h2 { margin: 0 0 20px 0; font-size: 20px; color: #0f172a; }
-.menu-list { list-style: none; padding: 0; margin: 0; }
-.menu-list li { margin-bottom: 10px; }
-.menu-btn { width: 100%; padding: 12px; text-align: left; border: none; background: none; font-size: 15px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 10px; transition: background 0.2s; }
-.menu-btn:hover { background: #f1f5f9; color: #0f172a; }
-.menu-btn.active { background: #fff0eb; color: var(--accent); }
-.fab{ position:absolute;right:18px;bottom:18px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:white; box-shadow:0 8px 24px rgba(255,100,54,0.28); display:grid;place-items:center;border:none;cursor:pointer;font-size:22px;z-index: 10; transition: transform 0.2s; }
-.fab.hidden { transform: scale(0); }
+/* 미니 계산기 스타일 */
+.calc-btn { background: #f1f5f9; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; color: #64748b; font-weight: 600; }
+.mini-calc-box { display: none; width: 100%; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 8px; border: 1px solid #eee; box-sizing: border-box; }
+.mini-calc-box.visible { display: block; }
+.mini-calc-row { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+.mc-input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
+.mc-btn { width: 100%; padding: 8px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+/* 대시보드 */
 .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
 .stat-card { background: #fcfcfc; border: 1px solid #f0f0f0; border-radius: 16px; padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 .stat-card-title { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; }
@@ -268,6 +281,8 @@ select.styled-input { cursor: pointer; color: #0f172a; appearance: auto; }
 .stat-info { display: flex; align-items: center; gap: 8px; }
 .stat-rank { width: 24px; height: 24px; background: #e2e8f0; color: #64748b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
 .stat-item:nth-child(1) .stat-rank { background: var(--accent); color: white; }
+.stat-item:nth-child(2) .stat-rank { background: #FF8A65; color: white; }
+.stat-item:nth-child(3) .stat-rank { background: #FFAB91; color: white; }
 .stat-label { font-size: 14px; font-weight: 700; color: #0f172a; }
 .stat-count-text { font-size: 12px; font-weight: 600; color: var(--muted); }
 .stat-count-text span { color: var(--accent); font-weight: 700; }
